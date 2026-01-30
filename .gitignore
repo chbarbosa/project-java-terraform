@@ -1,0 +1,17 @@
+# Plugins do Terraform 
+.terraform/
+
+# Arquivos de estado com segredos
+*.tfstate
+*.tfstate.*
+
+# Vars
+*.tfvars
+*.tfvars.json
+
+# O arquivo .env específico por ambiente
+.env
+
+# logs
+.terraform.lock.hcl
+crash.log
