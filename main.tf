@@ -29,12 +29,12 @@ resource "docker_network" "rede_app" {
 # 2. postgres database
 resource "docker_container" "db" {
   name  = "db-${terraform.workspace}"
-  image = "postgres:15-alpine"
+  image = var.postgres_image
   networks_advanced {
     name = docker_network.rede_app.name
   }
   env = [
-    "POSTGRES_PASSWORD=password123",
+    "POSTGRES_PASSWORD=${var.db_password}",
     "POSTGRES_DB=app_db"
   ]
   ports {
@@ -49,6 +49,60 @@ resource "local_file" "env_file" {
   content  = <<-EOT
     SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:${docker_container.db.ports[0].external}/app_db
     SPRING_DATASOURCE_USERNAME=postgres
-    SPRING_DATASOURCE_PASSWORD=password123
+    SPRING_DATASOURCE_PASSWORD=${var.db_password}
+    
+    # Configs
+    AWS_S3_ENDPOINT=http://localhost:4566
+    AWS_S3_BUCKET_NAME=${aws_s3_bucket.uploads.bucket}
+    AWS_SQS_QUEUE_URL=${aws_sqs_queue.q_orders.url}
+    AWS_REGION=us-east-1
+    AWS_ACCESS_KEY=test
+    AWS_SECRET_KEY=test
   EOT
+}
+
+# LocalStack
+resource "docker_container" "localstack" {
+  name  = "localstack-${terraform.workspace}"
+  image = "localstack/localstack:latest"
+  
+  networks_advanced {
+    name = docker_network.rede_app.name
+  }
+
+  ports {
+    internal = 4566
+    external = 4566
+  }
+
+  env = [
+    "SERVICES=s3,sqs", # available services
+    "DEFAULT_REGION=us-east-1"
+  ]
+}
+
+# Provider da AWS withc LocalStack
+provider "aws" {
+  region                      = "us-east-1"
+  access_key                  = "test"
+  secret_key                  = "test"
+  skip_credentials_validation = true
+  skip_metadata_api_check     = true
+  skip_requesting_account_id  = true
+  s3_use_path_style           = true
+
+  endpoints {
+    s3  = "http://localhost:4566"
+    sqs = "http://localhost:4566"
+  }
+}
+
+# with LocalStack
+resource "aws_s3_bucket" "uploads" {
+  bucket = "my-app-uploads-${terraform.workspace}"
+}
+
+resource "aws_sqs_queue" "q_orders" {
+  name = "q-orders-${terraform.workspace}"
+  visibility_timeout_seconds = var.sqs_visibility_timeout
 }
