@@ -8,6 +8,9 @@ terraform {
       source  = "hashicorp/local"
       version = "~> 2.4.0"}
   }
+  backend "local" {
+    path = "terraform.tfstate"
+  }
 }
 
 locals {
@@ -16,6 +19,11 @@ locals {
     dev     = 5433
     acc     = 5434
     prod    = 5432
+  }
+  microservicos = {
+    orders    = { port = 8081, db_name = "orders_db" }
+    payments  = { port = 8082, db_name = "payments_db" }
+    inventory = { port = 8083, db_name = "inventory_db" }
   }
 }
 
@@ -105,4 +113,21 @@ resource "aws_s3_bucket" "uploads" {
 resource "aws_sqs_queue" "q_orders" {
   name = "q-orders-${terraform.workspace}"
   visibility_timeout_seconds = var.sqs_visibility_timeout
+}
+
+resource "docker_container" "apps" {
+  for_each = local.microservicos 
+
+  name  = "ms-${each.key}-${terraform.workspace}"
+  image = "alpine" # simple image
+  command = ["tail", "-f", "/dev/null"] 
+  
+  networks_advanced {
+    name = docker_network.rede_app.name
+  }
+
+  ports {
+    internal = 8080
+    external = each.value.port
+  }
 }
