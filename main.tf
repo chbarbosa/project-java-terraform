@@ -51,21 +51,22 @@ resource "docker_container" "db" {
   }
 }
 
-# 3. .env file
-resource "local_file" "env_file" {
-  filename = "${path.module}/.env"
+resource "local_file" "envs_microsservicos" {
+  for_each = local.microservicos
+
+  filename = "${path.module}/.env.${each.key}"
   content  = <<-EOT
-    SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:${docker_container.db.ports[0].external}/app_db
-    SPRING_DATASOURCE_USERNAME=postgres
-    SPRING_DATASOURCE_PASSWORD=${var.db_password}
+
+    APP_NAME=ms-${each.key}
+    ENVIRONMENT=${terraform.workspace}
     
-    # Configs
-    AWS_S3_ENDPOINT=http://localhost:4566
-    AWS_S3_BUCKET_NAME=${aws_s3_bucket.uploads.bucket}
-    AWS_SQS_QUEUE_URL=${aws_sqs_queue.q_orders.url}
-    AWS_REGION=us-east-1
-    AWS_ACCESS_KEY=test
-    AWS_SECRET_KEY=test
+
+    DB_URL=jdbc:postgresql://localhost:${docker_container.db.ports[0].external}/app_db
+    
+    ORDER_QUEUE_URL=${aws_sqs_queue.q_orders.url}
+    
+    PAYMENTS_SERVICE_URL=http://localhost:8082
+    INVENTORY_SERVICE_URL=http://localhost:8083
   EOT
 }
 
