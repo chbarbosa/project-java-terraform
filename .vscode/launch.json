@@ -7,7 +7,7 @@
             "request": "launch",
             "mainClass": "com.pjtf.OrdersApplication",
             "projectName": "orders-service",
-            "envFile": "${workspaceFolder}/terraform-folder/.env.orders"
+            "envFile": "${workspaceFolder}/.env.orders"
         },
         {
             "type": "java",
@@ -15,7 +15,7 @@
             "request": "launch",
             "mainClass": "com.pjtf.InventoryApplication",
             "projectName": "inventory-service",
-            "envFile": "${workspaceFolder}/terraform-folder/.env.inventory"
+            "envFile": "${workspaceFolder}/.env.inventory"
         },
         {
             "type": "java",
@@ -23,7 +23,7 @@
             "request": "launch",
             "mainClass": "com.pjtf.PaymentsApplication",
             "projectName": "payments-service",
-            "envFile": "${workspaceFolder}/terraform-folder/.env.payments"
+            "envFile": "${workspaceFolder}/.env.payments"
         }
     ],
     "compounds": [
