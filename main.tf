@@ -66,14 +66,24 @@ resource "local_file" "envs_microsservicos" {
 
   filename = "${path.module}/.env.${each.key}"
   content  = <<-EOT
+    # Database
     DB_URL=jdbc:postgresql://localhost:${docker_container.db.ports[0].external}/app_db
-    ORDER_QUEUE_URL=http://localhost:4566/000000000000/q-orders-${terraform.workspace}
+    SPRING_DATASOURCE_PASSWORD=${var.db_password}
+
+    # S3
+    S3_ENDPOINT=http://localhost:4566
+    S3_BUCKET_NAME=${aws_s3_bucket.uploads.bucket}
+
+    # SQS
+    ORDER_QUEUE_URL=${aws_sqs_queue.q_orders.url}
     
+    # AWS Credentials
+    AWS_ACCESS_KEY_ID=test
+    AWS_SECRET_ACCESS_KEY=${var.aws_secret_key}
+    
+    # Internals
     INTERNAL_PAYMENTS_URL=http://ms-payments:8080
     INTERNAL_LOCALSTACK_URL=http://localstack:4566
-    
-    SPRING_DATASOURCE_PASSWORD=${var.db_password}
-    AWS_SECRET_ACCESS_KEY=${var.aws_secret_key}
   EOT
 }
 

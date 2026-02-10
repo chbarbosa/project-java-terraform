@@ -1,0 +1,11 @@
+aws:
+  s3:
+    bucket-name: ${S3_BUCKET_NAME} 
+    endpoint: ${S3_ENDPOINT}       
+  region: us-east-1
+
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: postgres
+    password: ${SPRING_DATASOURCE_PASSWORD}
