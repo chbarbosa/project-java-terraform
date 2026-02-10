@@ -41,13 +41,23 @@ resource "docker_container" "db" {
   networks_advanced {
     name = docker_network.rede_app.name
   }
+
   env = [
     "POSTGRES_PASSWORD=${var.db_password}",
     "POSTGRES_DB=app_db"
   ]
+
   ports {
     internal = 5432
     external = lookup(local.amb_ports, terraform.workspace, 5435)
+  }
+  
+  healthcheck {
+    test         = ["CMD-SHELL", "pg_isready -U postgres"]
+    interval     = "5s"
+    timeout      = "5s"
+    retries      = 5
+    start_period = "10s"
   }
 }
 
@@ -56,17 +66,11 @@ resource "local_file" "envs_microsservicos" {
 
   filename = "${path.module}/.env.${each.key}"
   content  = <<-EOT
-
-    APP_NAME=ms-${each.key}
-    ENVIRONMENT=${terraform.workspace}
-    
-
     DB_URL=jdbc:postgresql://localhost:${docker_container.db.ports[0].external}/app_db
+    ORDER_QUEUE_URL=http://localhost:4566/000000000000/q-orders-${terraform.workspace}
     
-    ORDER_QUEUE_URL=${aws_sqs_queue.q_orders.url}
-    
-    PAYMENTS_SERVICE_URL=http://localhost:8082
-    INVENTORY_SERVICE_URL=http://localhost:8083
+    INTERNAL_PAYMENTS_URL=http://ms-payments:8080
+    INTERNAL_LOCALSTACK_URL=http://localstack:4566
   EOT
 }
 
@@ -77,6 +81,7 @@ resource "docker_container" "localstack" {
   
   networks_advanced {
     name = docker_network.rede_app.name
+    aliases = ["localstack"]
   }
 
   ports {
@@ -125,6 +130,7 @@ resource "docker_container" "apps" {
   
   networks_advanced {
     name = docker_network.rede_app.name
+    aliases = ["ms-${each.key}"]
   }
 
   ports {
