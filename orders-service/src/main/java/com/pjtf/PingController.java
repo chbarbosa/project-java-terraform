@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class PingController {
     @GetMapping("/ping")
     public String ping() {
-        return "Pong! O Java está ouvindo o Terraform.";
+        return "Pong :D";
     }
 }
