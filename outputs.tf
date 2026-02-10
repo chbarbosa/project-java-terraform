@@ -1,4 +1,4 @@
-output "dashboard_p" {
+output "infra_status" {
   value = {
     ambiente = upper(terraform.workspace)
     servicos = {
