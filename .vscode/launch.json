@@ -1,0 +1,39 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch OrdersService",
+            "request": "launch",
+            "mainClass": "com.pjtf.OrdersApplication",
+            "projectName": "orders-service",
+            "envFile": "${workspaceFolder}/terraform-folder/.env.orders"
+        },
+        {
+            "type": "java",
+            "name": "Launch InventoryService",
+            "request": "launch",
+            "mainClass": "com.pjtf.InventoryApplication",
+            "projectName": "inventory-service",
+            "envFile": "${workspaceFolder}/terraform-folder/.env.inventory"
+        },
+        {
+            "type": "java",
+            "name": "Launch PaymentsService",
+            "request": "launch",
+            "mainClass": "com.pjtf.PaymentsApplication",
+            "projectName": "payments-service",
+            "envFile": "${workspaceFolder}/terraform-folder/.env.payments"
+        }
+    ],
+    "compounds": [
+    {
+        "name": "My services",
+        "configurations": [
+            "Launch OrdersService",
+            "Launch InventoryService",
+            "Launch PaymentsService"
+        ]
+    }
+]
+}

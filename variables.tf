@@ -19,3 +19,9 @@ variable "postgres_image" {
   type    = string
   default = "postgres:15-alpine"
 }
+
+variable "aws_secret_key" {
+  type      = string
+  sensitive = true
+  default   = "test_secret"
+}

@@ -71,6 +71,9 @@ resource "local_file" "envs_microsservicos" {
     
     INTERNAL_PAYMENTS_URL=http://ms-payments:8080
     INTERNAL_LOCALSTACK_URL=http://localstack:4566
+    
+    SPRING_DATASOURCE_PASSWORD=${var.db_password}
+    AWS_SECRET_ACCESS_KEY=${var.aws_secret_key}
   EOT
 }
 
