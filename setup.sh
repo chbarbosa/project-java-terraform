@@ -5,7 +5,7 @@ echo "Starting setup..."
 WORKSPACE=$(terraform workspace show)
 echo "Workspace: $WORKSPACE"
 
-terraform apply -auto-approve -compact-warnings
+terraform apply -refresh=false -auto-approve -compact-warnings
 
 if [ $? -eq 0 ]; then
     echo "Ready!"

@@ -131,10 +131,12 @@ provider "aws" {
 # with LocalStack
 resource "aws_s3_bucket" "uploads" {
   bucket = "my-app-uploads-${terraform.workspace}"
+  depends_on = [docker_container.localstack]
 }
 
 resource "aws_sqs_queue" "q_orders" {
   name = "q-orders-${terraform.workspace}"
+  depends_on = [docker_container.localstack]
   visibility_timeout_seconds = var.sqs_visibility_timeout
 }
 
@@ -148,10 +150,5 @@ resource "docker_container" "apps" {
   networks_advanced {
     name = docker_network.rede_app.name
     aliases = ["ms-${each.key}"]
-  }
-
-  ports {
-    internal = 8080
-    external = each.value.port
   }
 }
