@@ -21,9 +21,9 @@ locals {
     prod    = 5432
   }
   microservicos = {
-    orders    = { port = 8081, db_name = "orders_db" }
-    payments  = { port = 8082, db_name = "payments_db" }
-    inventory = { port = 8083, db_name = "inventory_db" }
+    orders    = { port = 8080, db_name = "orders_db" }
+    payments  = { port = 8081, db_name = "payments_db" }
+    inventory = { port = 8082, db_name = "inventory_db" }
   }
 }
 
@@ -66,6 +66,9 @@ resource "local_file" "envs_microsservicos" {
 
   filename = "${path.module}/.env.${each.key}"
   content  = <<-EOT
+    # Server Config
+    SERVER_PORT=${each.value.port}
+
     # Database
     DB_URL=jdbc:postgresql://localhost:${docker_container.db.ports[0].external}/app_db
     SPRING_DATASOURCE_PASSWORD=${var.db_password}
@@ -82,7 +85,8 @@ resource "local_file" "envs_microsservicos" {
     AWS_SECRET_ACCESS_KEY=${var.aws_secret_key}
     
     # Internals
-    INTERNAL_PAYMENTS_URL=http://ms-payments:8080
+    INTERNAL_PAYMENTS_URL=http://localhost:8081
+    INTERNAL_INVENTORY_URL=http://localhost:8082
     INTERNAL_LOCALSTACK_URL=http://localstack:4566
   EOT
 }

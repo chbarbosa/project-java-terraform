@@ -13,7 +13,7 @@
             "type": "java",
             "name": "Launch InventoryService",
             "request": "launch",
-            "mainClass": "com.pjtf.InventoryApplication",
+            "mainClass": "com.pjtf.inventory.InventoryApplication",
             "projectName": "inventory-service",
             "envFile": "${workspaceFolder}/.env.inventory"
         },
@@ -21,7 +21,7 @@
             "type": "java",
             "name": "Launch PaymentsService",
             "request": "launch",
-            "mainClass": "com.pjtf.PaymentsApplication",
+            "mainClass": "com.pjtf.payments.PaymentsApplication",
             "projectName": "payments-service",
             "envFile": "${workspaceFolder}/.env.payments"
         }
