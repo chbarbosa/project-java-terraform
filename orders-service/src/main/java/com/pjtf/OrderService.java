@@ -2,26 +2,28 @@ package com.pjtf;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+
+import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.GetQueueUrlRequest;
+import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse;
 
 @Service
 public class OrderService {
 
-    private final RestTemplate restTemplate;
+    private final SqsClient sqsClient;
 
-    @Value("${INTERNAL_PAYMENTS_URL}") 
-    private String paymentsUrl;
+    @Value("${aws.sqs.queue_url")
+    private String queueUrl;
 
-    public OrderService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public OrderService(SqsClient sqsClient) {
+        this.sqsClient = sqsClient;
     }
 
-    public void createOrder(String orderId) {
-        System.out.println("Order " + orderId + " created. Calling payments...");
-        
-        String url = paymentsUrl + "/payments/process";
-        String response = restTemplate.postForObject(url, orderId, String.class);
-        
-        System.out.println("Ansqer from Payments service: " + response);
+    public void sendToQueue(String orderId) {
+        GetQueueUrlResponse getQueueUrlResponse = 
+        sqsClient.getQueueUrl(GetQueueUrlRequest.builder().queueName("q-orders-dev").build());
+        String qu = getQueueUrlResponse.queueUrl();
+        sqsClient.sendMessage(to -> to.queueUrl(qu).messageBody(orderId));
+        System.out.println("Order sent: " + orderId);
     }
 }

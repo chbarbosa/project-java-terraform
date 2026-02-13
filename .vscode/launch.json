@@ -7,22 +7,27 @@
             "request": "launch",
             "mainClass": "com.pjtf.OrdersApplication",
             "projectName": "orders-service",
-            "envFile": "${workspaceFolder}/.env.orders"
+            "envFile": "${workspaceFolder}/.env.orders",
+            "vmArgs": " -Dcom.sun.management.jmxremote"
         },
         {
             "type": "java",
             "name": "Launch InventoryService",
             "request": "launch",
+            "cwd": "${workspaceFolder}",
             "mainClass": "com.pjtf.inventory.InventoryApplication",
-            "projectName": "inventory-service",
+            "projectName": "inventory",
+            "args": "",
             "envFile": "${workspaceFolder}/.env.inventory"
         },
         {
             "type": "java",
             "name": "Launch PaymentsService",
             "request": "launch",
+            "cwd": "${workspaceFolder}",
             "mainClass": "com.pjtf.payments.PaymentsApplication",
-            "projectName": "payments-service",
+            "projectName": "payments",
+            "args": "",
             "envFile": "${workspaceFolder}/.env.payments"
         }
     ],

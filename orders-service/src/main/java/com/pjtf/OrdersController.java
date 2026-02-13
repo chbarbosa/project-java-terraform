@@ -17,7 +17,7 @@ public class OrdersController {
 
     @GetMapping("/create/{id}")
     public String createOrder(@PathVariable String id) {
-        orderService.createOrder(id);
+        orderService.sendToQueue(id);
         return "Order " + id + " send!";
     }
 }

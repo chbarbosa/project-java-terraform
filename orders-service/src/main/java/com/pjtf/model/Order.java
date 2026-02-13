@@ -14,7 +14,7 @@ public class Order {
 
     private String customerName;
     private BigDecimal totalValue;
-    private String status; // Ex: PENDING, PAID, CANCELLED
+    private String status; 
     private LocalDateTime createdAt;
 
     @PrePersist
@@ -23,5 +23,4 @@ public class Order {
         this.status = "PENDING";
     }
 
-    // Getters e Setters (Dica: Use a extensão 'Lombok' se preferir não escrever tudo)
 }
