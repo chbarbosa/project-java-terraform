@@ -2,6 +2,7 @@ package com.pjtf.payments;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,9 @@ import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 public class PaymentListener {
 
     private final SqsClient sqsClient;
-    private final String queueUrl = "http://localhost:4566/000000000000/q-orders-dev";
+    
+    @Value("${ORDER_QUEUE_URL}")
+    private String queueUrl;
 
     public PaymentListener(SqsClient sqsClient) {
         this.sqsClient = sqsClient;
@@ -25,7 +28,7 @@ public class PaymentListener {
         ReceiveMessageRequest receiveRequest = ReceiveMessageRequest.builder()
                 .queueUrl(queueUrl)
                 .maxNumberOfMessages(5)
-                .waitTimeSeconds(10) // Long Polling
+                .waitTimeSeconds(10)
                 .build();
 
         List<Message> messages = sqsClient.receiveMessage(receiveRequest).messages();

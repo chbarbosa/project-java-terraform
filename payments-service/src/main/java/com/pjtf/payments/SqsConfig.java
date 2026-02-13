@@ -14,16 +14,22 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 @Configuration
 public class SqsConfig {
 
-    @Value("${ORDER_QUEUE_URL}") 
-    private String queueUrl;
+    @Value("${SQS_ENDPOINT:http://localhost:4566}") 
+    private String sqsEndpoint;
+
+    @Value("${AWS_ACCESS_KEY_ID:test}")
+    private String accessKey;
+
+    @Value("${AWS_SECRET_ACCESS_KEY:test}")
+    private String secretKey;
 
     @Bean
     public SqsClient sqsClient() {
         return SqsClient.builder()
-                .endpointOverride(URI.create("http://localhost:4566")) 
+                .endpointOverride(URI.create(sqsEndpoint)) 
                 .region(Region.US_EAST_1)
                 .credentialsProvider(StaticCredentialsProvider.create(
-                    AwsBasicCredentials.create("test", "test")))
+                    AwsBasicCredentials.create(accessKey, secretKey)))
                 .build();
     }
 }
