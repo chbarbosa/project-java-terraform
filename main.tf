@@ -141,7 +141,8 @@ resource "aws_sqs_queue" "q_orders" {
 }
 
 resource "docker_container" "apps" {
-  for_each = local.microservicos 
+  # no java containers for lcl
+  for_each = terraform.workspace == "dev" ? {} : local.microservicos
 
   name  = "ms-${each.key}-${terraform.workspace}"
   image = "alpine" # simple image
@@ -151,4 +152,8 @@ resource "docker_container" "apps" {
     name = docker_network.rede_app.name
     aliases = ["ms-${each.key}"]
   }
+
+  env = [
+    "SERVER_PORT=${each.value.port}"
+  ]
 }
