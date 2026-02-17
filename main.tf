@@ -66,28 +66,19 @@ resource "local_file" "envs_microsservicos" {
 
   filename = "${path.module}/.env.${each.key}"
   content  = <<-EOT
-    # Server Config
     SERVER_PORT=${each.value.port}
-
-    # Database
     DB_URL=jdbc:postgresql://localhost:${docker_container.db.ports[0].external}/app_db
     SPRING_DATASOURCE_PASSWORD=${var.db_password}
-
-    # S3
     S3_ENDPOINT=http://localhost:4566
     S3_BUCKET_NAME=${aws_s3_bucket.uploads.bucket}
-
-    # SQS
     ORDER_QUEUE_URL=${aws_sqs_queue.q_orders.url}
-    
-    # AWS Credentials
+    ORDER_QUEUE_NAME=q-orders-${terraform.workspace}
     AWS_ACCESS_KEY_ID=test
     AWS_SECRET_ACCESS_KEY=${var.aws_secret_key}
-    
-    # Internals
+    AWS_REGION=us-east-1
     INTERNAL_PAYMENTS_URL=http://localhost:8081
     INTERNAL_INVENTORY_URL=http://localhost:8082
-    INTERNAL_LOCALSTACK_URL=http://localstack:4566
+    INTERNAL_LOCALSTACK_URL=http://localhost:4566
   EOT
 }
 
@@ -165,7 +156,8 @@ resource "docker_container" "apps" {
     external = each.value.port 
   }
 
-  env = ["SERVER_PORT=${each.value.port}",
+  env = [
+    "SERVER_PORT=${each.value.port}",
 
     "DB_URL=jdbc:postgresql://db-${terraform.workspace}:5432/app_db",
     "SPRING_DATASOURCE_PASSWORD=${var.db_password}",
@@ -175,6 +167,7 @@ resource "docker_container" "apps" {
     "S3_BUCKET_NAME=${aws_s3_bucket.uploads.bucket}",
 
     "ORDER_QUEUE_URL=http://localstack:4566/000000000000/q-orders-${terraform.workspace}",
+    "ORDER_QUEUE_NAME=q-orders-${terraform.workspace}",
     
     # Credentials
     "AWS_ACCESS_KEY_ID=test",

@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 @Configuration
 public class SqsConfig {
 
-    @Value("${SQS_ENDPOINT:http://localhost:4566}")
+    @Value("${aws.sqs.endpoint}")
     private String sqsEndpoint;
 
     @Value("${AWS_ACCESS_KEY_ID:test}")
