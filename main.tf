@@ -140,20 +140,49 @@ resource "aws_sqs_queue" "q_orders" {
   visibility_timeout_seconds = var.sqs_visibility_timeout
 }
 
+resource "docker_image" "apps_img" {
+  # no for dev
+  for_each = terraform.workspace == "dev" ? {} : local.microservicos
+  name = "projeto/${each.key}:latest"
+
+  keep_locally = true
+}
+
 resource "docker_container" "apps" {
-  # no java containers for lcl
   for_each = terraform.workspace == "dev" ? {} : local.microservicos
 
   name  = "ms-${each.key}-${terraform.workspace}"
-  image = "alpine" # simple image
-  command = ["tail", "-f", "/dev/null"] 
+  image = docker_image.apps_img[each.key].name
+  restart = "on-failure"
   
   networks_advanced {
-    name = docker_network.rede_app.name
+    name    = docker_network.rede_app.name
     aliases = ["ms-${each.key}"]
   }
 
-  env = [
-    "SERVER_PORT=${each.value.port}"
+  ports {
+    internal = each.value.port # (in container)
+    external = each.value.port 
+  }
+
+  env = ["SERVER_PORT=${each.value.port}",
+
+    "DB_URL=jdbc:postgresql://db-${terraform.workspace}:5432/app_db",
+    "SPRING_DATASOURCE_PASSWORD=${var.db_password}",
+    "SPRING_DATASOURCE_USERNAME=postgres", 
+
+    "S3_ENDPOINT=http://localstack:4566",
+    "S3_BUCKET_NAME=${aws_s3_bucket.uploads.bucket}",
+
+    "ORDER_QUEUE_URL=http://localstack:4566/000000000000/q-orders-${terraform.workspace}",
+    
+    # Credentials
+    "AWS_ACCESS_KEY_ID=test",
+    "AWS_SECRET_ACCESS_KEY=${var.aws_secret_key}",
+    "AWS_REGION=us-east-1",
+    
+    "INTERNAL_PAYMENTS_URL=http://ms-payments:8081",
+    "INTERNAL_INVENTORY_URL=http://ms-inventory:8082",
+    "INTERNAL_LOCALSTACK_URL=http://localstack:4566"
   ]
 }
