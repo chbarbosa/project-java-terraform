@@ -99,7 +99,9 @@ resource "docker_container" "localstack" {
 
   env = [
     "SERVICES=s3,sqs", # available services
-    "DEFAULT_REGION=us-east-1"
+    "DEFAULT_REGION=us-east-1",
+    "LOCALSTACK_HOST=localstack",
+    "HOSTNAME_EXTERNAL=localstack"
   ]
 }
 
