@@ -14,8 +14,8 @@ import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 public class PaymentListener {
 
     private final SqsClient sqsClient;
-    
-    @Value("${ORDER_QUEUE_URL}")
+
+    @Value("${aws.sqs.queue_url}")
     private String queueUrl;
 
     public PaymentListener(SqsClient sqsClient) {
