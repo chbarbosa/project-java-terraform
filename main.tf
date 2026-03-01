@@ -181,3 +181,31 @@ resource "docker_container" "apps" {
     "INTERNAL_LOCALSTACK_URL=http://localstack:4566"
   ]
 }
+# Prometheus Container
+resource "docker_container" "prometheus" {
+  name  = "prometheus-${terraform.workspace}"
+  image = "prom/prometheus:latest"
+  
+  networks_advanced {
+    name = docker_network.rede_app.name
+  }
+
+  ports {
+    internal = 9090
+    external = 9090
+  }
+
+  # Configuração mínima via comando para ele achar seus apps
+  upload {
+    file = "/etc/prometheus/prometheus.yml"
+    content = <<-EOT
+      global:
+        scrape_interval: 5s
+      scrape_configs:
+        - job_name: 'spring-apps'
+          metrics_path: '/actuator/prometheus'
+          static_configs:
+            - targets: ['ms-orders:8080', 'ms-payments:8081', 'ms-inventory:8082']
+    EOT
+  }
+}
